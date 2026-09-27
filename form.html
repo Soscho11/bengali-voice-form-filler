@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>আবেদন ফর্ম (Demo)</title>
+  <style>
+    body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; background: #f4f6f8; }
+    .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 350px; }
+    label { font-weight: bold; display: block; margin-top: 10px; font-size: 14px; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    button { width: 100%; margin-top: 20px; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>নাগরিক তথ্য ফর্ম</h2>
+    <form id="userForm">
+      <label for="name">নাম:</label>
+      <input type="text" id="name" placeholder="নাম">
+
+      <label for="district">জেলা:</label>
+      <select id="district">
+        <option value="">জেলা নির্বাচন করুন</option>
+        <option value="Rangpur">রংপুর (Rangpur)</option>
+        <option value="Chattogram">চট্টগ্রাম (Chattogram)</option>
+        <option value="Khulna">খুলনা (Khulna)</option>
+        <option value="Dhaka">ঢাকা (Dhaka)</option>
+      </select>
+
+      <label for="phone">মোবাইল নম্বর:</label>
+      <input type="text" id="phone" placeholder="০১৭xxxxxxxx">
+
+      <label for="dob">জন্ম তারিখ:</label>
+      <input type="date" id="dob">
+
+      <button type="button" onclick="alert('ফর্ম সফলভাবে সাবমিট হয়েছে!')">জমা দিন</button>
+    </form>
+  </div>
+</body>
+</html>

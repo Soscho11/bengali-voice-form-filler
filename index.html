@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>Voice AI Form Filler</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); width: 420px; text-align: center; }
+    h2 { color: #1e293b; margin-bottom: 8px; }
+    p { color: #64748b; font-size: 14px; margin-top: 0; }
+    .mic-btn { width: 80px; height: 80px; border-radius: 50%; border: none; background: #2563eb; color: white; font-size: 32px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 12px rgba(37,99,235,0.3); outline: none; margin: 20px 0; }
+    .mic-btn.listening { background: #ef4444; animation: pulse 1.2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); } 70% { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    .status { font-weight: 600; color: #475569; margin-bottom: 12px; min-height: 20px; }
+    .textbox { width: 100%; min-height: 70px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; box-sizing: border-box; font-size: 14px; background: #f8fafc; color: #334155; text-align: left; }
+    .log { margin-top: 15px; font-size: 13px; color: #10b981; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>ভয়েস ফর্ম ফিলার AI</h2>
+    <p>মাইক বাটনে চাপ দিয়ে যেকোনো আঞ্চলিক বাংলায় তথ্য বলুন</p>
+    
+    <button id="micBtn" class="mic-btn">🎙️</button>
+    <div id="status" class="status">কথা বলতে মাইকে ক্লিক করুন</div>
+    
+    <div id="transcript" class="textbox">আপনার কথা এখানে টেক্সট আকারে আসবে...</div>
+    <div id="log" class="log"></div>
+  </div>
+
+  <script>
+    const micBtn = document.getElementById('micBtn');
+    const statusText = document.getElementById('status');
+    const transcriptBox = document.getElementById('transcript');
+    const logBox = document.getElementById('log');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      statusText.innerText = "❌ আপনার ব্রাউজারে স্পিচ রিকগনিশন সাপোর্ট করে না। দয়া করে Chrome ব্যবহার করুন।";
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'bn-BD'; // বাংলা ভাষা
+      recognition.interimResults = false;
+
+      let isListening = false;
+
+      micBtn.addEventListener('click', () => {
+        if (!isListening) {
+          recognition.start();
+        } else {
+          recognition.stop();
+        }
+      });
+
+      recognition.onstart = () => {
+        isListening = true;
+        micBtn.classList.add('listening');
+        statusText.innerText = "শুনছি... এখন কথা বলুন";
+        logBox.innerText = "";
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        statusText.innerText = "প্রসেসিং সম্পন্ন। আবার বলতে মাইকে চাপ দিন";
+      };
+
+      recognition.onresult = async (event) => {
+        const spokenText = event.results[0][0].transcript;
+        transcriptBox.innerText = spokenText;
+        statusText.innerText = "🤖 Gemini দিয়ে ফিল্টার এবং ফর্ম ফিলাপ করা হচ্ছে...";
+
+        try {
+          const res = await fetch('/process-voice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: spokenText })
+          });
+          const result = await res.json();
+          if (result.status === "success") {
+            logBox.innerText = "✅ সফলভাবে ব্রাউজারে ফর্ম ফিলাপ হয়েছে!";
+          } else {
+            logBox.innerText = "⚠️ সমস্যা: " + result.error;
+          }
+        } catch (err) {
+          logBox.innerText = "⚠️ সার্ভার সংযোগে সমস্যা হয়েছে!";
+        }
+      };
+    }
+  </script>
+</body>
+</html>
